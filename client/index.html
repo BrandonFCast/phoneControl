@@ -1,0 +1,124 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand GameControl</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        canvas,
+        body {
+            background-color: #223;
+        }
+
+        canvas {
+            outline: 1px solid red;
+        }
+    </style>
+
+</head>
+
+<body>
+    <canvas id="cnv" width="400" height="200"></canvas>
+    <script type="module">
+        import { io } from 'https://cdn.socket.io/4.7.5/socket.io.esm.min.js'
+        const socket = io();
+
+        let cli = false;
+        const ev = document.addEventListener("click", () => {
+            if (cli) {
+                return;
+            }
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+                setTimeout(() => {
+                    start()
+                }, 300)
+            }
+            cli = true;
+        })
+
+        const keysInUse = {};
+        const start = () => {
+            const canvas = document.getElementById("cnv")
+            const context = canvas.getContext('2d')
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const size = { w: window.innerWidth, h: window.innerHeight }
+
+            const uiData = [];
+            const registerButton = (tag, x1, y1, x2, y2) => {
+                uiData.push({ tag, x1, x2, y1, y2 });
+            }
+
+            const createButton = (tag, x, y, h, w) => {
+                const localSize = (size.w / 6) - 20;
+                context.fillStyle = '#447';
+                if (h == 0) h = localSize / 2;
+                if (!w) w = localSize;
+                if (!h) h = localSize;
+
+
+                context.fillRect(x, y, w, h);
+
+                context.fillStyle = '#336';
+                context.font = "small-caps bold 40px arial";
+                context.fillText(tag, x - 10 + w / 2, 10 + y + h / 2);
+
+                registerButton(tag, x, y, x + w, y + h);
+            }
+            const padd = 20;
+            createButton("U", size.w / 6, padd)
+            createButton("L", padd, size.w / 6)
+            createButton("R", -padd + 2 * size.w / 6, size.w / 6)
+            createButton("D", size.w / 6, -padd + 2 * size.w / 6)
+
+            createButton("A", size.w / 2 + padd, size.w / 6)
+            createButton("B", size.w / 2 + padd + padd + size.w / 6, size.w / 6)
+
+            // select
+            createButton("select", size.w / 2 + padd, 2.5 * size.w / 6, 0)
+            // start
+            createButton("start", size.w / 2 + padd + padd + size.w / 6, 2.5 * size.w / 6, 0)
+
+            const verifyClick = (touches, btn) => {
+                for (const touch of touches) {
+                    const x = touch.clientX;
+                    const y = touch.clientY;
+                    if (x >= btn.x1 && x <= btn.x2 && y >= btn.y1 && y <= btn.y2) {
+                        return true;
+                    }
+                };
+                return false;
+            }
+
+            canvas.addEventListener("touchstart", (e) => {
+                for (const i in uiData) {
+                    if (verifyClick(e.touches, uiData[i])) {
+                        // console.log(uiData[i].tag)
+                        socket.emit("touchstart", uiData[i].tag);
+                    }
+                }
+            })
+            canvas.addEventListener("touchend", (e) => {
+
+                for (const i in uiData) {
+                    console.log(e)
+                    if (verifyClick(e.changedTouches, uiData[i])) {
+                        // console.log(uiData[i].tag)
+                        socket.emit("touchend", uiData[i].tag);
+                    }
+                }
+            })
+        }
+        // start()
+
+    </script>
+</body>
+
+</html>

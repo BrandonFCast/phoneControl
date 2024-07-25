@@ -1,0 +1,17 @@
+{
+  "name": "bot",
+  "version": "1.0.0",
+  "description": "movimiento del mouse con js",
+  "main": "app.mjs",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Brandon BC",
+  "license": "ISC",
+  "dependencies": {
+    "@nut-tree-fork/nut-js": "^4.2.1",
+    "express": "4.19.2",
+    "socket.io": "4.7.5"
+  }
+}
