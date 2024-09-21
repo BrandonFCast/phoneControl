@@ -20,41 +20,40 @@ io.on('connection', (socket) => {
     // socket.on('disconnect', () => {
     //     console.log('el usuario se desconecto')
     // })
-    const values = {
-        u: Key.W,
-        l: Key.A,
-        d: Key.S,
-        r: Key.D,
-        select: Key.Z,
-        start: Key.F,
-        a: Key.C,
-        b: Key.X
-    }
-
-    socket.on('dir', (msg) => {
-        console.log(msg)
-        // moverMouse(msg)
-    })
-    socket.on('type', (msg) => {
-        const v = msg.toLowerCase();
-        console.log("k: " + v)
-        type(values[v]);
-    })
     socket.on('touchstart', (msg) => {
-        const v = msg.toLowerCase();
-        console.log("inicio: " + v)
-        pressKey(values[v]);
+        let v = msg;
+        if (v.length <= 1) v = msg.toUpperCase();
+        // console.log("inicio: " + v)
+        if (!keysInUse[v]) pressKey(Key[v]);
+        keysInUse[v] = true;
         // keysInUse[v] = true;
     })
     socket.on('touchend', (msg) => {
-        const v = msg.toLowerCase();
-        console.log("termino: " + v)
-        // releaseKey(values[v]);
+        let v = msg;
+        if (v.length <= 1) v = msg.toUpperCase();
+        // console.log("termino: " + v)
+        if (keysInUse[v]) releaseKey(Key[v]);
+        keysInUse[v] = false;
     })
 })
 
 app.get('/', (req, res) => {
     res.sendFile(process.cwd() + '/client/index.html')
+});
+app.get('/player2', (req, res) => {
+    res.sendFile(process.cwd() + '/client/index2.html')
+});
+app.get('/aux', (req, res) => {
+    res.sendFile(process.cwd() + '/client/index3.html')
+});
+app.get('/btn1', (req, res) => {
+    res.sendFile(process.cwd() + '/client/btn1.html')
+});
+app.get('/btn2', (req, res) => {
+    res.sendFile(process.cwd() + '/client/btn2.html')
+});
+app.get('/btn3', (req, res) => {
+    res.sendFile(process.cwd() + '/client/btn3.html')
 });
 
 server.listen(port, () => {
